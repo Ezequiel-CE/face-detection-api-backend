@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 const { registerValidation } = require("../utils/validation");
 const User = require("../models/User.model");
 
-const resgiterUSer = async (req, res) => {
+const resgiterUser = async (req, res) => {
   //validation
   const { error, value } = registerValidation(req.body);
   if (error) {
@@ -40,12 +40,10 @@ const resgiterUSer = async (req, res) => {
     //create tokjen
 
     const token = jwt.sign(
-      { id: savedUser.id, mail: savedUser.mail },
+      { id: savedUser.id, email: savedUser.mail },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
-
-    console.log(emailExist);
 
     res.status(200).json({
       success: true,
@@ -57,4 +55,16 @@ const resgiterUSer = async (req, res) => {
   }
 };
 
-module.exports = { resgiterUSer };
+const loginUser = (req, res) => {
+  const { user } = req;
+  const token = jwt.sign(
+    { id: user.id, email: user.mail },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+  );
+  res
+    .status(200)
+    .json({ success: true, message: `welcome back ${user.username}`, token });
+};
+
+module.exports = { resgiterUser, loginUser };

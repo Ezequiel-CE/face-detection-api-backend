@@ -13,8 +13,9 @@ const authRouter = require("./src/routes/auth");
 
 //middleware
 app.use(express.json());
-app.use(passport.initialize());
 app.use(cors());
+app.use(passport.initialize());
+require("./src/config/passport");
 
 //routes
 

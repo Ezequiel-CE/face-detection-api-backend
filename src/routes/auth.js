@@ -1,8 +1,12 @@
 const router = require("express").Router();
-const { resgiterUSer } = require("../controllers/auth.controllers");
+const passport = require("passport");
+const { resgiterUser, loginUser } = require("../controllers/auth.controllers");
 
-router.post("/register", resgiterUSer);
-
-router.post("/login", (req, res) => {});
+router.post("/register", resgiterUser);
+router.post(
+  "/login",
+  passport.authenticate("local", { session: false }),
+  loginUser
+);
 
 module.exports = router;
