@@ -47,7 +47,11 @@ const resgiterUser = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: `user created with mail: ${savedUser.mail}`,
+      user: {
+        firstName: savedUser.firstName,
+        lastName: savedUser.lastName,
+        email: savedUser.mail,
+      },
       token,
     });
   } catch (err) {
@@ -56,15 +60,48 @@ const resgiterUser = async (req, res) => {
 };
 
 const loginUser = (req, res) => {
-  const { user } = req;
+  const { user: userData } = req;
   const token = jwt.sign(
-    { id: user.id, email: user.mail },
+    { id: userData.id, email: userData.mail },
     process.env.JWT_SECRET,
     { expiresIn: "1d" }
   );
-  res
-    .status(200)
-    .json({ success: true, message: `welcome back ${user.username}`, token });
+  res.status(200).json({
+    success: true,
+    userData,
+    token,
+  });
 };
 
-module.exports = { resgiterUser, loginUser };
+//check if user is valid
+
+const isValidUser = async (req, res) => {
+  const { user } = req;
+  try {
+    const findUser = await User.findOne({
+      where: { mail: user.email },
+    });
+
+    if (!user) {
+      return done(null, false);
+    }
+
+    const { dataValues: userData } = findUser;
+
+    delete userData.password;
+    delete userData.id;
+    res.status(200).json({
+      success: true,
+      message: `welcome back ${userData.username}`,
+      userData,
+    });
+  } catch (error) {
+    res.status(200).json({
+      success: false,
+      message: "user dont exist",
+      userData,
+    });
+  }
+};
+
+module.exports = { resgiterUser, loginUser, isValidUser };
